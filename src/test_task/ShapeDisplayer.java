@@ -169,12 +169,20 @@ public class ShapeDisplayer {
 		
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
-		System.out.print("Введіть кількість об'єктів: ");
-		int arrayLength = scanner.nextInt();
-		scanner.close();
-		for(String figure : showAllFigures(arrayLength)) {
-			System.out.println(figure);
-		}
+		int arrayLength = 0;
+		while(arrayLength <= 0) {
+			System.out.print("Введіть кількість об'єктів: ");
+			arrayLength = scanner.nextInt();
+			if(arrayLength > 0) {
+				for(String figure : showAllFigures(arrayLength)) {
+					System.out.println(figure);
+				}
+				scanner.close();
+			} else {
+				System.out.println("Введено не коректну кількість!!! ");
+			}
+		}		
+				
 	}
 	
 }
