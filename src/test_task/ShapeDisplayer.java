@@ -1,105 +1,180 @@
 package test_task;
 
-class Shape {
-	private String colour;
-	private double area;
+import java.util.Random;
+import java.util.Scanner;
+
+abstract class Figure {
+	private String color;
 	
-	public String getColour() {
-		return colour;
+	public Figure(String color) {
+		this.color = color;
 	}
 	
-	public void setColour(String colour) {
-		this.colour = colour;
+	public String getColor() {
+		return color;
 	}
 	
-	public double getArea() {
-		return area;
-	}	
+	public abstract int getArea();
 	
-	public void setArea(double area) {
-		this.area = area;
-	}
+	public abstract String draw();
 }
 
 
-class Square extends Shape {
-	private double sides;
+class Square extends Figure {
+	private int side;
 	
-	public double getSides() {
-		return sides;
+	public Square(String color, int side) {
+		super(color);
+		this.side = side;
 	}
-	public void setSides(double sides) {
-		this.sides = sides;
+	
+	public int getSides() {
+		return side;
 	}
-	public double getPerimetr() {
-		return 4 * sides;
+
+	public int getPerimetr() {
+		return 4 * side;
 	}
 	
 	@Override
-	public double getArea() {
-		return sides * sides;
+	public int getArea() {
+		return side * side;
+	}
+	
+	@Override
+	public String draw() {
+		return "Фігура: квадрат, площа: " + getArea() + " кв. од., периметр: " + getPerimetr() + " од., колір: " + getColor();
 	}
 }
 
-class Triangle extends Shape {
-	private double sideA;
-	private double sideB;
+class Triangle extends Figure {
+	private int sideA;
+	private int sideB;
 	private double internalAngle;
 	
+	public Triangle(String color, int sideA, int sideB, int internalAngle) {
+		super(color);
+		this.sideA = sideA;
+		this.sideB = sideB;
+		this.internalAngle = Math.toRadians(internalAngle);
+	}
+	
+	public int getSideC() {
+		return (int) Math.round(Math.sqrt(Math.pow(sideA, 2.0) + Math.pow(sideB, 2.0) - 2 * sideA * sideB * Math.cos(internalAngle)));
+	}
+	
+	public int getBisection() {
+		return (int) Math.round(Math.sqrt(sideA * sideB * (sideA + sideB + getSideC()) * (sideA + sideB - getSideC())) / (sideA + sideB));
+	}
+	
 	@Override
-	public double getArea() {
-		return 0.5 * sideA * sideB * Math.sin(internalAngle);
+	public int getArea() {
+		return (int) Math.round(0.5 * sideA * sideB * Math.sin(internalAngle));
 	}
-	
-	public double getSideC() {
-		return Math.pow(sideA, 2.0) + Math.pow(sideB, 2.0) - 2 * sideA * sideB * Math.cos(internalAngle);
-	}
-	
-	public double bisection() {
-		return Math.sqrt(sideA * sideB * (sideA + sideB + getSideC()) * (sideA + sideB - getSideC())) / (sideA + sideB);
+
+	@Override
+	public String draw() {
+		return "Фігура: трикутник, площа: " + getArea() + " кв. од., довжина бісектриси: " + getBisection() + " од., колір: " + getColor();
 	}
 	
 }
 
-class Circle extends Shape {
-	private double radius;
+class Circle extends Figure {
+	private int radius;
 	
-	@Override
-	public double getArea() {
-		return Math.PI * Math.pow(radius, 2);
+	public Circle(String color, int radius) {
+		super(color);
+		this.radius = radius;
 	}
 	
-	public double getRadius() {
+	public int getRadius() {
 		return radius;
 	}
-}
-
-class Trapezoid extends Shape {
-	private double smollerSideA;
-	private double biggerSideB;
-	private double legC;
-	private double angle;
 	
-	public double getHeight() {
-		return legC * Math.sin(angle);
+	@Override
+	public int getArea() {
+		return (int) Math.round(Math.PI * Math.pow(radius, 2));
 	}
 	
-	public double getLegD() {
-		return Math.sqrt(Math.pow(getHeight(), 2) + Math.pow(biggerSideB - smollerSideA - legC * Math.cos(angle), 2));
+	
+	@Override
+	public String draw() {
+		return "Фігура: коло, площа: " + getArea() + " кв. од., радіус: " + getRadius() + " од., колір: " + getColor();
+	}
+}
+
+class Trapezoid extends Figure {
+	private int smollerSideA;
+	private int biggerSideB;
+	private int legC;
+	private double angle;
+	
+	public Trapezoid(String color, int smollerSideA, int biggerSideB, int legC, int angle) {
+		super(color);
+		this.smollerSideA = smollerSideA;
+		this.biggerSideB = biggerSideB;
+		this.legC = legC;
+		this.angle = Math.toRadians(angle);
+	}
+	
+	public int getHeight() {
+		return (int) Math.round(legC * Math.sin(angle));
+	}
+	
+	public int getLegD() {
+		return (int) Math.round(Math.sqrt(Math.pow(getHeight(), 2) + Math.pow(biggerSideB - smollerSideA - legC * Math.cos(angle), 2)));
 	}
 	
 	@Override
-	public double getArea() {
-		return (smollerSideA - biggerSideB) / 2 * getHeight();
+	public int getArea() {
+		return Math.round((biggerSideB + smollerSideA) / 2 * getHeight());
 	}
+
+	@Override
+	public String draw() {
+		return "Фігура: трапеція, площа: " + getArea() + " кв. од., висота: " + getHeight() + " од., колір: " + getColor();
+	}
+
+}
+
+class FigureFactory {
+	private static String[] COLORS = {"red", "orange", "yellow", "green", "blue", "indigo", "violet"}; 
+		
+	public static String buildFigure() {
+		Random random = new Random();
+		int typeFigure = random.nextInt(4);
+		if (typeFigure == 0) {
+			return new Square(COLORS[random.nextInt(COLORS.length)], 1 + random.nextInt(100)).draw();
+		} else if (typeFigure == 1) {
+			return new Triangle(COLORS[random.nextInt(COLORS.length)], 1 + random.nextInt(100), 1 + random.nextInt(100), 1 + random.nextInt(179)).draw();
+		} else if (typeFigure == 2) {
+			return new Circle(COLORS[random.nextInt(COLORS.length)], 1 + random.nextInt(100)).draw();
+		} else {
+			int smallerSideA = 1 + random.nextInt(100);
+			int biggerSideB = 1 + smallerSideA + random.nextInt(100);
+			return new Trapezoid(COLORS[random.nextInt(COLORS.length)], smallerSideA, biggerSideB, 1 + random.nextInt(100), 1 + random.nextInt(179)).draw();
+		}
+	}
+	
 }
 
 public class ShapeDisplayer {
-
-	public static void main(String[] args) {
-		System.out.println("Hello world");
-
+	public static String[] showAllFigures(int arrayLength) {
+		String[] listOfObjects = new String[arrayLength];
+		for(int i = 0; i < arrayLength; i++) {
+			listOfObjects[i] = FigureFactory.buildFigure();
+		}
+		return listOfObjects;
 	}
-
+		
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Введіть кількість об'єктів: ");
+		int arrayLength = scanner.nextInt();
+		scanner.close();
+		for(String figure : showAllFigures(arrayLength)) {
+			System.out.println(figure);
+		}
+	}
+	
 }
-
